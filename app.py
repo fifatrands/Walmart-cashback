@@ -156,6 +156,22 @@ def submit_to_fetch(items, user_token):
 def index():
     return render_template('index.html')
 
+@app.route('/manifest.json')
+def manifest():
+    return {
+        "name": "Walmart Cashback Engine 3.0",
+        "short_name": "Cashback Engine",
+        "description": "Smart receipt scanning and cashback optimization",
+        "start_url": "/",
+        "display": "standalone",
+        "background_color": "#667eea",
+        "theme_color": "#667eea",
+        "icons": [
+            {"src": "/static/icon-192.png", "sizes": "192x192", "type": "image/png"},
+            {"src": "/static/icon-512.png", "sizes": "512x512", "type": "image/png"}
+        ]
+    }
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
