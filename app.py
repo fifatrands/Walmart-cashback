@@ -50,6 +50,21 @@ class Offer(db.Model):
 # Create tables
 with app.app_context():
     db.create_all()
+    
+    # Create admin user if it doesn't exist
+    admin_user = User.query.filter_by(username='admin').first()
+    if not admin_user:
+        admin_password_hash = generate_password_hash('admin123')  # Change this password!
+        admin_user = User(
+            username='admin',
+            password_hash=admin_password_hash,
+            email='admin@walmart-cashback.com'
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+        print("✓ Admin user created with username='admin' and password='admin123'")
+    else:
+        print("✓ Admin user already exists")
 
 @login_manager.user_loader
 def load_user(user_id):
