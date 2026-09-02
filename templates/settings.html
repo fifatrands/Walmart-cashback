@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Settings</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        body { font-family: sans-serif; padding: 1rem; max-width: 600px; margin: auto; }
+        .card { background: #f8f9fa; padding: 1rem; margin: 1rem 0; border-radius: 12px; }
+        button { background: #0071dc; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; }
+        input { width: 100%; padding: 0.5rem; margin: 0.3rem 0; border: 1px solid #ccc; border-radius: 8px; }
+        label { font-weight: bold; display: block; margin: 0.5rem 0 0.2rem; }
+        .help { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
+        .current { font-family: monospace; background: #e9ecef; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; }
+        .masked { color: #666; }
+    </style>
+</head>
+<body>
+    <h1>⚙️ Settings</h1>
+    <p><a href="{{ url_for('dashboard') }}">← Back to Dashboard</a></p>
+
+    <div class="card">
+        <h3>🔐 Auto-Submit API Tokens</h3>
+        <p class="help">Add your API tokens to enable automatic submission to Ibotta and Fetch Rewards.</p>
+        
+        <form method="POST" action="{{ url_for('settings') }}">
+            <label>Ibotta API Token</label>
+            <p class="help">Get from Ibotta Partner Dashboard → API Keys</p>
+            {% if current_user.ibotta_token %}
+                <div class="current masked">•••••••••••••••• (set)</div>
+            {% else %}
+                <div class="current masked">Not configured</div>
+            {% endif %}
+            <input type="password" name="ibotta_token" placeholder="Paste Ibotta token here" autocomplete="new-password">
+            
+            <label>Fetch Rewards API Token</label>
+            <p class="help">Get from Fetch Rewards Developer Portal → API Keys</p>
+            {% if current_user.fetch_token %}
+                <div class="current masked">•••••••••••••••• (set)</div>
+            {% else %}
+                <div class="current masked">Not configured</div>
+            {% endif %}
+            <input type="password" name="fetch_token" placeholder="Paste Fetch token here" autocomplete="new-password">
+            
+            <button type="submit">Save Tokens</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>🔑 Change Password</h3>
+        <form method="POST" action="{{ url_for('change_password') }}">
+            <input type="password" name="current_password" placeholder="Current password" required>
+            <input type="password" name="new_password" placeholder="New password" required>
+            <input type="password" name="confirm_password" placeholder="Confirm new password" required>
+            <button type="submit">Change Password</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>📱 PWA Install</h3>
+        <p>This app works as a Progressive Web App. Install it on your phone:</p>
+        <ul>
+            <li><strong>iOS:</strong> Safari → Share → "Add to Home Screen"</li>
+            <li><strong>Android:</strong> Chrome → Menu → "Install app" or "Add to Home Screen"</li>
+        </ul>
+        <button onclick="registerSW()">Register Service Worker</button>
+    </div>
+
+    <script>
+        function registerSW() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(() => alert('Service Worker registered!'))
+                    .catch(err => alert('SW registration failed: ' + err));
+            } else {
+                alert('Service Workers not supported in this browser');
+            }
+        }
+    </script>
+</body>
+</html>

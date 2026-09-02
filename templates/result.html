@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>R</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        body { font-family: sans-serif; padding: 2rem; max-width: 500px; margin: auto; }
+        .container { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { text-align: center; margin-top: 2rem; color: #0071dc; }
+        .results { margin-top: 2rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.5rem; border: 1px solid #ddd; text-align: left; }
+        th { background: #0071dc; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Receipt Details</h1>
+        <p class="success">Your receipt was processed successfully!</p>
+        <div class="results">
+            <h2>Matches:</h2>
+            <table>
+                <tr>
+                    <th>Product</th>
+                    <th>Brand</th>
+                    <th>Cashback</th>
+                </tr>
+                {% for item in matches %}
+                    <tr>
+                        <td>{{ item.product }}</td>
+                        <td>{{ item.brand }}</td>
+                        <td>Ⓠ  {{ item.cashback }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="results">
+            <h2>Total Cashback:</h2>
+            <p>$ {{ total }}</p>
+        </div>
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </div>
+</body>
+</html>
