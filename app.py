@@ -65,6 +65,23 @@ with app.app_context():
         print("✓ Admin user created with username='admin' and password='admin123'")
     else:
         print("✓ Admin user already exists")
+    
+    # Create sample offers if database is empty
+    if Offer.query.count() == 0:
+        sample_offers = [
+            Offer(keyword='milk', brand='Great Value', cashback=0.50, size='1 gallon'),
+            Offer(keyword='bread', brand='Wonder', cashback=0.25, size='20oz'),
+            Offer(keyword='eggs', brand='Great Value', cashback=0.75, size='12 count'),
+            Offer(keyword='banana', brand='', cashback=0.10, size='per lb'),
+            Offer(keyword='yogurt', brand='Dannon', cashback=1.00, size='4-pack'),
+            Offer(keyword='cheese', brand='Kraft', cashback=0.50, size='8oz'),
+            Offer(keyword='cereal', brand='Cheerios', cashback=1.50, size='12oz'),
+            Offer(keyword='apple', brand='', cashback=0.15, size='per lb'),
+        ]
+        for offer in sample_offers:
+            db.session.add(offer)
+        db.session.commit()
+        print(f"✓ Added {len(sample_offers)} sample cashback offers")
 
 @login_manager.user_loader
 def load_user(user_id):
