@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Walmart Cashback Engine 3.0{% endblock %}</title>
+    
+    <!-- 🎨 Modern Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- 📱 PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('manifest') }}">
+    
+    <!-- 🎯 Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='icon-192.png') }}">
+    
+    <!-- 🎭 Meta Tags -->
+    <meta name="description" content="Smart receipt scanning and cashback optimization for Walmart shoppers">
+    <meta name="theme-color" content="#667eea">
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- 🚀 Header Navigation -->
+    {% if current_user.is_authenticated %}
+    <div class="container">
+        <header class="header fade-in-up">
+            <div class="logo">
+                Walmart Cashback 3.0
+            </div>
+            <nav class="nav-links">
+                <a href="{{ url_for('dashboard') }}">📊 Dashboard</a>
+                <a href="{{ url_for('upload') }}">📷 Upload Receipt</a>
+                <a href="{{ url_for('settings') }}">⚙️ Settings</a>
+                <a href="{{ url_for('logout') }}">👋 Logout</a>
+            </nav>
+        </header>
+    </div>
+    {% endif %}
+    
+    <!-- 📢 Flash Messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="container">
+            {% for message in messages %}
+            <div class="alert alert-info fade-in-up">
+                <span>ℹ️</span>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- 🎯 Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- ✨ Loading Overlay -->
+    <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
+            <div class="loading" style="margin: 0 auto 20px;"></div>
+            <p>Processing your receipt...</p>
+        </div>
+    </div>
+    
+    <!-- 🎨 JavaScript Enhancements -->
+    <script>
+        // ✨ Add smooth animations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add fade-in animations to all cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('fade-in-up');
+                }, index * 100);
+            });
+            
+            // Enhance file upload
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            fileInputs.forEach(input => {
+                input.addEventListener('change', function(e) {
+                    const fileName = e.target.files[0]?.name;
+                    if (fileName) {
+                        const label = this.parentNode.querySelector('.file-upload-btn');
+                        label.innerHTML = `📄 Selected: ${fileName}`;
+                        label.style.background = 'linear-gradient(45deg, #43e97b, #38f9d7)';
+                    }
+                });
+            });
+            
+            // Add loading state to forms
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    const submitBtn = this.querySelector('button[type="submit"], input[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '<div class="loading" style="display: inline-block; margin-right: 10px;"></div>Processing...';
+                        submitBtn.disabled = true;
+                    }
+                });
+            });
+            
+            // Register Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(() => console.log('🚀 PWA Service Worker registered'))
+                    .catch(err => console.log('❌ SW registration failed'));
+            }
+        });
+        
+        // 🎯 Utility Functions
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+        
+        // 🎉 Add sparkle effect to success messages
+        function addSparkles() {
+            const successAlerts = document.querySelectorAll('.alert-success');
+            successAlerts.forEach(alert => {
+                alert.style.position = 'relative';
+                alert.style.overflow = 'hidden';
+                
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const sparkle = document.createElement('div');
+                        sparkle.innerHTML = '✨';
+                        sparkle.style.position = 'absolute';
+                        sparkle.style.left = Math.random() * 100 + '%';
+                        sparkle.style.top = Math.random() * 100 + '%';
+                        sparkle.style.animation = 'fadeInUp 0.5s ease-out';
+                        alert.appendChild(sparkle);
+                        
+                        setTimeout(() => sparkle.remove(), 1000);
+                    }, i * 200);
+                }
+            });
+        }
+        
+        // Run sparkles on success messages
+        setTimeout(addSparkles, 500);
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

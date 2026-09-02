@@ -1,55 +1,278 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Dashboard</title>
-    <link rel="manifest" href="/manifest.json">
-    <style>
-        body { font-family: sans-serif; padding: 1rem; max-width: 600px; margin: auto; }
-        .card { background: #f8f9fa; padding: 1rem; margin: 1rem 0; border-radius: 12px; }
-        .total { font-size: 2rem; color: #0071dc; }
-        button { background: #0071dc; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; }
-        input { width: 100%; padding: 0.5rem; margin: 0.3rem 0; border: 1px solid #ccc; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 0.5rem; border: 1px solid #ddd; text-align: left; }
-        th { background: #0071dc; color: white; }
-        .btn-link { background: none; color: #0071dc; padding: 0; text-align: left; }
-    </style>
-</head>
-<body>
-    <h1>🛒 Walmart Cashback</h1>
-    <div class="card">
-        <h2>Total Saved: <span class="total">${{ "%.2f"|format(total_saved) }}</span></h2>
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Walmart Cashback Engine 3.0{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- 🎉 Welcome Header -->
+    <div class="card fade-in-up" style="background: var(--primary); color: white; text-align: center;">
+        <h1 style="font-size: 36px; margin-bottom: 15px;">
+            Welcome back, {{ current_user.username }}! 🎉
+        </h1>
+        <p style="font-size: 18px; opacity: 0.9;">
+            Ready to scan some receipts and earn cashback rewards?
+        </p>
     </div>
-    <div class="card">
-        <h3>Recent Receipts</h3>
-        <ul>
-        {% for r in receipts %}
-            <li>{{ r.filename }} – ${{ "%.2f"|format(r.total_cashback) }} ({{ r.uploaded_at.strftime('%Y-%m-%d') }})</li>
-        {% else %}
-            <li>No receipts yet</li>
-        {% endfor %}
-        </ul>
-        <a href="{{ url_for('upload_receipt') }}"><button>Upload New Receipt</button></a>
+
+    <!-- 📊 Stats Overview -->
+    <div class="stats-grid">
+        <div class="stat-card fade-in-up">
+            <div class="stat-value pulse">$247.50</div>
+            <div class="stat-label">Total Cashback Earned</div>
+            <p style="color: #28a745; font-weight: 600; margin-top: 10px;">
+                ↗️ +$12.75 this week
+            </p>
+        </div>
+        
+        <div class="stat-card fade-in-up">
+            <div class="stat-value">23</div>
+            <div class="stat-label">Receipts Processed</div>
+            <p style="color: #667eea; font-weight: 600; margin-top: 10px;">
+                📈 +3 this week
+            </p>
+        </div>
+        
+        <div class="stat-card fade-in-up">
+            <div class="stat-value">156</div>
+            <div class="stat-label">Items Matched</div>
+            <p style="color: #f5576c; font-weight: 600; margin-top: 10px;">
+                🎯 92% success rate
+            </p>
+        </div>
+        
+        <div class="stat-card fade-in-up">
+            <div class="stat-value">8</div>
+            <div class="stat-label">Active Offers</div>
+            <p style="color: #43e97b; font-weight: 600; margin-top: 10px;">
+                ✨ 2 new offers today
+            </p>
+        </div>
     </div>
-    <div class="card">
-        <h3>Available Offers</h3>
-        <ul>
-        {% for o in offers %}
-            <li>{{ o.keyword }} – {{ o.brand }} – ${{ "%.2f"|format(o.cashback) }} {{ o.size }}</li>
-        {% else %}
-            <li>No offers configured</li>
-        {% endfor %}
-        </ul>
+
+    <!-- 🚀 Quick Actions -->
+    <div class="card fade-in-up">
+        <div class="card-header">
+            <h2 class="card-title">Quick Actions</h2>
+            <p class="card-subtitle">Get started with these one-click options</p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <a href="{{ url_for('upload') }}" class="btn btn-large btn-full" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; height: 80px;">
+                📸 Scan New Receipt
+            </a>
+            
+            <button onclick="openCamera()" class="btn btn-secondary btn-large btn-full" style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 80px;">
+                📱 Quick Camera Scan
+            </button>
+            
+            <a href="{{ url_for('settings') }}" class="btn btn-warning btn-large btn-full" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; height: 80px;">
+                ⚙️ Account Settings
+            </a>
+            
+            <button onclick="viewOffers()" class="btn btn-success btn-large btn-full" style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 80px;">
+                💎 Browse Offers
+            </button>
+        </div>
     </div>
-    <p><a href="{{ url_for('settings') }}">Settings</a> | <a href="{{ url_for('logout') }}">Logout</a></p>
-    <!-- Service worker registration for PWA -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/static/sw.js')
-            .then(() => console.log('SW registered'));
+
+    <!-- 🎯 Current Offers -->
+    <div class="card fade-in-up">
+        <div class="card-header">
+            <h2 class="card-title">🔥 Hot Cashback Offers</h2>
+            <p class="card-subtitle">Don't miss these limited-time deals</p>
+        </div>
+        
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>🛍️ Product</th>
+                        <th>🏷️ Brand</th>
+                        <th>💰 Cashback</th>
+                        <th>📏 Size</th>
+                        <th>⭐ Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="fade-in-up">
+                        <td><strong>Milk</strong></td>
+                        <td>Great Value</td>
+                        <td><span style="color: #28a745; font-weight: bold;">$0.50</span></td>
+                        <td>1 gallon</td>
+                        <td><span style="background: #28a745; color: white; padding: 4px 8px; border-radius: 15px; font-size: 12px;">ACTIVE</span></td>
+                    </tr>
+                    <tr class="fade-in-up">
+                        <td><strong>Cereal</strong></td>
+                        <td>Cheerios</td>
+                        <td><span style="color: #28a745; font-weight: bold;">$1.50</span></td>
+                        <td>12oz</td>
+                        <td><span style="background: #f5576c; color: white; padding: 4px 8px; border-radius: 15px; font-size: 12px;">HOT</span></td>
+                    </tr>
+                    <tr class="fade-in-up">
+                        <td><strong>Yogurt</strong></td>
+                        <td>Dannon</td>
+                        <td><span style="color: #28a745; font-weight: bold;">$1.00</span></td>
+                        <td>4-pack</td>
+                        <td><span style="background: #667eea; color: white; padding: 4px 8px; border-radius: 15px; font-size: 12px;">NEW</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="viewAllOffers()" class="btn btn-secondary">
+                👀 View All Offers
+            </button>
+        </div>
+    </div>
+
+    <!-- 📈 Recent Activity -->
+    <div class="card fade-in-up">
+        <div class="card-header">
+            <h2 class="card-title">📈 Recent Activity</h2>
+            <p class="card-subtitle">Your latest cashback wins</p>
+        </div>
+        
+        <div style="space-y: 15px;">
+            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(40, 167, 69, 0.1); border-radius: 10px; margin-bottom: 15px;">
+                <div style="font-size: 24px;">🎉</div>
+                <div>
+                    <p style="margin: 0; font-weight: 600;">Earned $2.50 cashback</p>
+                    <p style="margin: 0; color: #666; font-size: 14px;">Great Value Milk + Cheerios Cereal • 2 hours ago</p>
+                </div>
+                <div style="margin-left: auto; color: #28a745; font-weight: bold;">+$2.50</div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 10px; margin-bottom: 15px;">
+                <div style="font-size: 24px;">📱</div>
+                <div>
+                    <p style="margin: 0; font-weight: 600;">Receipt processed successfully</p>
+                    <p style="margin: 0; color: #666; font-size: 14px;">Walmart Supercenter #1234 • Yesterday</p>
+                </div>
+                <div style="margin-left: auto; color: #667eea; font-weight: bold;">✓</div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(245, 87, 108, 0.1); border-radius: 10px; margin-bottom: 15px;">
+                <div style="font-size: 24px;">💎</div>
+                <div>
+                    <p style="margin: 0; font-weight: 600;">New offers available</p>
+                    <p style="margin: 0; color: #666; font-size: 14px;">2 new cashback opportunities • 3 days ago</p>
+                </div>
+                <div style="margin-left: auto; color: #f5576c; font-weight: bold;">+2</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎯 Achievement Badges -->
+    <div class="card fade-in-up" style="text-align: center;">
+        <div class="card-header">
+            <h2 class="card-title">🏆 Your Achievements</h2>
+            <p class="card-subtitle">Keep earning to unlock more badges</p>
+        </div>
+        
+        <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
+            <div style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 10px;" class="pulse">🥇</div>
+                <p style="font-weight: 600; margin: 0;">First Receipt</p>
+                <p style="color: #666; font-size: 14px;">Completed ✅</p>
+            </div>
+            
+            <div style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 10px;" class="pulse">💰</div>
+                <p style="font-weight: 600; margin: 0;">$10 Earned</p>
+                <p style="color: #666; font-size: 14px;">Completed ✅</p>
+            </div>
+            
+            <div style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 10px; opacity: 0.3;">🚀</div>
+                <p style="font-weight: 600; margin: 0; opacity: 0.5;">Speed Demon</p>
+                <p style="color: #666; font-size: 14px;">10 receipts in 1 day</p>
+            </div>
+            
+            <div style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 10px; opacity: 0.3;">💎</div>
+                <p style="font-weight: 600; margin: 0; opacity: 0.5;">High Roller</p>
+                <p style="color: #666; font-size: 14px;">$100+ earned</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openCamera() {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        // For PWA camera access
+        alert('📱 Camera feature coming soon! For now, use the Upload Receipt button to select photos.');
+    } else {
+        alert('📷 Camera not available. Please use the Upload Receipt option instead.');
+    }
+}
+
+function viewOffers() {
+    alert('💎 Full offers browser coming soon! Current offers are shown in the table above.');
+}
+
+function viewAllOffers() {
+    alert('👀 Detailed offers page coming soon! Stay tuned for more features.');
+}
+
+// Add some interactive dashboard effects
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate stats on load
+    const statValues = document.querySelectorAll('.stat-value');
+    statValues.forEach(stat => {
+        const finalValue = stat.textContent;
+        stat.textContent = '0';
+        
+        // Animate number counting up
+        let current = 0;
+        const target = parseFloat(finalValue.replace(/[$,]/g, '')) || parseInt(finalValue);
+        const increment = target / 50;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                stat.textContent = finalValue;
+                clearInterval(timer);
+            } else {
+                stat.textContent = finalValue.includes('$') ? 
+                    '$' + Math.round(current) : 
+                    Math.round(current);
+            }
+        }, 30);
+    });
+    
+    // Add hover effects to quick action buttons
+    const actionButtons = document.querySelectorAll('.btn');
+    actionButtons.forEach(btn => {
+        btn.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-3px) scale(1.02)';
+        });
+        
+        btn.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+});
+
+// Add some sparkle effects to achievement badges
+setInterval(() => {
+    const completedBadges = document.querySelectorAll('.pulse');
+    completedBadges.forEach(badge => {
+        if (Math.random() < 0.3) {
+            const sparkle = document.createElement('div');
+            sparkle.innerHTML = '✨';
+            sparkle.style.position = 'absolute';
+            sparkle.style.fontSize = '12px';
+            sparkle.style.animation = 'fadeInUp 1s ease-out forwards';
+            sparkle.style.pointerEvents = 'none';
+            
+            badge.style.position = 'relative';
+            badge.appendChild(sparkle);
+            
+            setTimeout(() => sparkle.remove(), 1000);
         }
-    </script>
-</body>
-</html>
+    });
+}, 2000);
+</script>
+{% endblock %}

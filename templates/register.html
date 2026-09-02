@@ -1,43 +1,350 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Register</title>
-    <link rel="manifest" href="/manifest.json">
-    <style>
-        body { font-family: sans-serif; padding: 2rem; max-width: 400px; margin: auto; }
-        .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #0071dc; text-align: center; margin-bottom: 1.5rem; }
-        input { width: 100%; padding: 0.75rem; margin: 0.5rem 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; background: #0071dc; color: white; border: none; padding: 0.75rem; border-radius: 8px; font-size: 1rem; font-weight: bold; margin-top: 0.5rem; }
-        .link { text-align: center; margin-top: 1rem; color: #666; }
-        .link a { color: #0071dc; text-decoration: none; }
-        .flash { background: #f8d7da; color: #721c24; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h1>📝 Create Account</h1>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="flash">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <form method="POST">
-            <input type="text" name="username" placeholder="Username" required autocomplete="username">
-            <input type="email" name="email" placeholder="Email (optional)" autocomplete="email">
-            <input type="password" name="password" placeholder="Password" required autocomplete="new-password">
-            <button type="submit">Register</button>
-        </form>
-        <div class="link">
-            Already have an account? <a href="{{ url_for('login') }}">Login</a>
+{% extends "base.html" %}
+
+{% block title %}Create Account - Walmart Cashback Engine 3.0{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="max-width: 600px; margin: 50px auto;">
+        <div class="card fade-in-up">
+            <div class="card-header">
+                <h1 class="card-title">Join the Cashback Revolution! 🚀</h1>
+                <p class="card-subtitle">Create your free account and start earning rewards today</p>
+            </div>
+            
+            <form method="POST" id="registerForm">
+                <div class="form-group">
+                    <label class="form-label">👤 Choose Username</label>
+                    <input 
+                        type="text" 
+                        name="username" 
+                        class="form-control" 
+                        placeholder="Enter a unique username"
+                        required
+                        minlength="3"
+                        maxlength="20"
+                        autocomplete="username"
+                    >
+                    <div id="usernameHelp" style="font-size: 12px; color: #666; margin-top: 5px;">
+                        3-20 characters, letters and numbers only
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">📧 Email Address</label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        class="form-control" 
+                        placeholder="your.email@example.com"
+                        required
+                        autocomplete="email"
+                    >
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        We'll send you cashback notifications and updates
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">🔒 Create Password</label>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        class="form-control" 
+                        placeholder="Create a strong password"
+                        required
+                        minlength="6"
+                        autocomplete="new-password"
+                        id="password"
+                    >
+                    <div id="passwordStrength" style="font-size: 12px; margin-top: 8px;">
+                        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                            <div class="strength-bar" id="bar1"></div>
+                            <div class="strength-bar" id="bar2"></div>
+                            <div class="strength-bar" id="bar3"></div>
+                            <div class="strength-bar" id="bar4"></div>
+                        </div>
+                        <span id="strengthText" style="color: #666;">Enter password to see strength</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">🔒 Confirm Password</label>
+                    <input 
+                        type="password" 
+                        name="confirm_password" 
+                        class="form-control" 
+                        placeholder="Confirm your password"
+                        required
+                        autocomplete="new-password"
+                        id="confirmPassword"
+                    >
+                    <div id="passwordMatch" style="font-size: 12px; margin-top: 5px;"></div>
+                </div>
+                
+                <!-- 📋 Terms & Privacy -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" required style="transform: scale(1.2);">
+                        <span style="font-size: 14px; color: #666; line-height: 1.4;">
+                            I agree to the <a href="#" style="color: #667eea;">Terms of Service</a> 
+                            and <a href="#" style="color: #667eea;">Privacy Policy</a>
+                        </span>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="newsletter" style="transform: scale(1.2);">
+                        <span style="font-size: 14px; color: #666; line-height: 1.4;">
+                            📧 Send me cashback alerts and special offers (optional)
+                        </span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-large btn-full pulse" id="submitBtn">
+                    🎉 Create My Free Account
+                </button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 30px; padding-top: 30px; border-top: 1px solid rgba(0,0,0,0.1);">
+                <p style="color: #666; margin-bottom: 20px;">
+                    Already have an account?
+                </p>
+                <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                    👋 Sign In Instead
+                </a>
+            </div>
         </div>
-        <div class="link">
-            <a href="{{ url_for('index') }}">← Back to Home</a>
+        
+        <!-- 🎁 Benefits Preview -->
+        <div class="card fade-in-up" style="margin-top: 30px; background: var(--success); color: white; text-align: center;">
+            <h3 style="margin-bottom: 20px;">🎁 What You Get For Free</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <div style="font-size: 32px; margin-bottom: 10px;">📱</div>
+                    <h4 style="margin-bottom: 8px;">Mobile PWA App</h4>
+                    <p style="opacity: 0.9; font-size: 14px;">Install on any device</p>
+                </div>
+                
+                <div>
+                    <div style="font-size: 32px; margin-bottom: 10px;">🤖</div>
+                    <h4 style="margin-bottom: 8px;">Smart AI Scanning</h4>
+                    <p style="opacity: 0.9; font-size: 14px;">Automatic receipt processing</p>
+                </div>
+                
+                <div>
+                    <div style="font-size: 32px; margin-bottom: 10px;">💰</div>
+                    <h4 style="margin-bottom: 8px;">Multi-Platform Rewards</h4>
+                    <p style="opacity: 0.9; font-size: 14px;">Ibotta, Fetch & more</p>
+                </div>
+            </div>
+            <p style="opacity: 0.9;">
+                ✨ No credit card required • Cancel anytime • Your data stays private
+            </p>
         </div>
     </div>
-</body>
-</html>
+</div>
+
+<script>
+// 🎯 Form Validation & Enhancement
+const form = document.getElementById('registerForm');
+const password = document.getElementById('password');
+const confirmPassword = document.getElementById('confirmPassword');
+const submitBtn = document.getElementById('submitBtn');
+
+// Password strength checker
+password.addEventListener('input', function() {
+    const value = this.value;
+    const strength = calculatePasswordStrength(value);
+    updatePasswordStrength(strength);
+});
+
+// Password match checker
+confirmPassword.addEventListener('input', function() {
+    const match = document.getElementById('passwordMatch');
+    if (this.value === password.value) {
+        match.innerHTML = '✅ Passwords match';
+        match.style.color = '#28a745';
+    } else if (this.value) {
+        match.innerHTML = '❌ Passwords do not match';
+        match.style.color = '#dc3545';
+    } else {
+        match.innerHTML = '';
+    }
+});
+
+function calculatePasswordStrength(password) {
+    let score = 0;
+    
+    if (password.length >= 6) score++;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    
+    return Math.min(score, 4);
+}
+
+function updatePasswordStrength(strength) {
+    const bars = document.querySelectorAll('.strength-bar');
+    const text = document.getElementById('strengthText');
+    
+    // Reset bars
+    bars.forEach(bar => {
+        bar.style.backgroundColor = '#e9ecef';
+    });
+    
+    // Color bars based on strength
+    const colors = ['#dc3545', '#fd7e14', '#ffc107', '#28a745'];
+    const labels = ['Very Weak', 'Weak', 'Fair', 'Strong'];
+    
+    for (let i = 0; i < strength; i++) {
+        bars[i].style.backgroundColor = colors[Math.min(strength - 1, 3)];
+    }
+    
+    if (strength > 0) {
+        text.innerHTML = labels[Math.min(strength - 1, 3)];
+        text.style.color = colors[Math.min(strength - 1, 3)];
+    } else {
+        text.innerHTML = 'Enter password to see strength';
+        text.style.color = '#666';
+    }
+}
+
+// Username validation
+const username = document.querySelector('input[name="username"]');
+username.addEventListener('input', function() {
+    const help = document.getElementById('usernameHelp');
+    const value = this.value;
+    
+    if (value.length < 3) {
+        help.innerHTML = '⚠️ Username too short (minimum 3 characters)';
+        help.style.color = '#dc3545';
+    } else if (!/^[a-zA-Z0-9]+$/.test(value)) {
+        help.innerHTML = '⚠️ Only letters and numbers allowed';
+        help.style.color = '#dc3545';
+    } else {
+        help.innerHTML = '✅ Username looks good!';
+        help.style.color = '#28a745';
+    }
+});
+
+// Form submission enhancement
+form.addEventListener('submit', function(e) {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('❌ Passwords do not match. Please check and try again.');
+        return;
+    }
+    
+    if (calculatePasswordStrength(password) < 2) {
+        if (!confirm('⚠️ Your password is weak. Are you sure you want to continue?')) {
+            e.preventDefault();
+            return;
+        }
+    }
+    
+    // Show loading state
+    submitBtn.innerHTML = '<div class="loading" style="display: inline-block; margin-right: 10px;"></div>Creating Account...';
+    submitBtn.disabled = true;
+});
+
+// Add interactive effects
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('.form-control');
+    
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentNode.style.transform = 'translateY(-2px)';
+            this.parentNode.style.transition = 'all 0.3s ease';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentNode.style.transform = 'translateY(0)';
+        });
+    });
+    
+    // Add sparkle effect to benefits
+    setInterval(() => {
+        const benefits = document.querySelectorAll('[style*="font-size: 32px"]');
+        const randomBenefit = benefits[Math.floor(Math.random() * benefits.length)];
+        
+        if (Math.random() < 0.3) {
+            const sparkle = document.createElement('div');
+            sparkle.innerHTML = '✨';
+            sparkle.style.position = 'absolute';
+            sparkle.style.fontSize = '16px';
+            sparkle.style.animation = 'fadeInUp 1s ease-out forwards';
+            sparkle.style.pointerEvents = 'none';
+            
+            randomBenefit.style.position = 'relative';
+            randomBenefit.appendChild(sparkle);
+            
+            setTimeout(() => sparkle.remove(), 1000);
+        }
+    }, 2000);
+});
+</script>
+
+<style>
+/* 🎨 Register page specific styles */
+.strength-bar {
+    height: 4px;
+    flex: 1;
+    background-color: #e9ecef;
+    border-radius: 2px;
+    transition: background-color 0.3s ease;
+}
+
+/* Enhanced form styling */
+.form-group {
+    position: relative;
+}
+
+.form-control:focus {
+    transform: scale(1.01);
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+    accent-color: #667eea;
+}
+
+/* Benefits grid responsive */
+@media (max-width: 768px) {
+    .card {
+        margin: 20px 0;
+        padding: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+}
+
+/* Animated border effect */
+.card {
+    position: relative;
+    overflow: hidden;
+}
+
+.card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #667eea, transparent);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+</style>
+{% endblock %}

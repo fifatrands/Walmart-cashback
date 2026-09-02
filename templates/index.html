@@ -1,48 +1,195 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Walmart Cashback Engine</title>
-    <link rel="manifest" href="/manifest.json">
-    <style>
-        body { font-family: sans-serif; padding: 2rem; max-width: 500px; margin: auto; text-align: center; background: #f5f5f5; }
-        .container { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #0071dc; margin-bottom: 0.5rem; }
-        .subtitle { color: #666; margin-bottom: 2rem; }
-        .btn { display: inline-block; background: #0071dc; color: white; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: bold; margin: 0.5rem; }
-        .btn-secondary { background: #6c757d; }
-        .features { text-align: left; margin-top: 2rem; }
-        .feature { display: flex; align-items: center; margin: 1rem 0; }
-        .feature-icon { font-size: 1.5rem; margin-right: 1rem; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🛒 Walmart Cashback Engine</h1>
-        <p class="subtitle">Automatic cashback on every Walmart receipt. Price alerts. Crowdsourced offers.</p>
+{% extends "base.html" %}
+
+{% block title %}Home - Walmart Cashback Engine 3.0{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- 🎉 Hero Section -->
+    <section class="hero">
+        <h1 class="hero-title floating">
+            💰 Walmart Cashback Engine 3.0
+        </h1>
+        <p class="hero-subtitle">
+            Transform your shopping receipts into real cashback rewards! 
+            Smart AI-powered receipt scanning meets automatic offer matching for maximum savings.
+        </p>
+        <div class="hero-buttons">
+            <a href="{{ url_for('register') }}" class="btn btn-large pulse">
+                🚀 Get Started Free
+            </a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary btn-large">
+                👋 Welcome Back
+            </a>
+        </div>
+    </section>
+
+    <!-- ✨ Features Grid -->
+    <div class="stats-grid">
+        <div class="stat-card fade-in-up">
+            <div class="stat-value">📱</div>
+            <div class="stat-label">PWA Ready</div>
+            <p style="margin-top: 15px; color: #666;">
+                Install as a mobile app for instant receipt scanning on-the-go
+            </p>
+        </div>
         
-        <a href="{{ url_for('login') }}" class="btn">Login</a>
-        <a href="{{ url_for('register') }}" class="btn btn-secondary">Create Account</a>
+        <div class="stat-card fade-in-up">
+            <div class="stat-value">🤖</div>
+            <div class="stat-label">Smart OCR</div>
+            <p style="margin-top: 15px; color: #666;">
+                Advanced AI extracts items and prices from any receipt automatically
+            </p>
+        </div>
         
-        <div class="features">
-            <div class="feature">
-                <span class="feature-icon">📸</span>
-                <span><strong>Snap & Earn</strong> – Upload receipts, get instant cashback matches</span>
+        <div class="stat-card fade-in-up">
+            <div class="stat-value">💎</div>
+            <div class="stat-label">Auto-Match</div>
+            <p style="margin-top: 15px; color: #666;">
+                Instantly matches your purchases with available cashback offers
+            </p>
+        </div>
+        
+        <div class="stat-card fade-in-up">
+            <div class="stat-value">🎯</div>
+            <div class="stat-label">Multi-Submit</div>
+            <p style="margin-top: 15px; color: #666;">
+                Automatically submits to Ibotta, Fetch Rewards, and more platforms
+            </p>
+        </div>
+    </div>
+
+    <!-- 🎨 How It Works -->
+    <div class="card fade-in-up">
+        <div class="card-header">
+            <h2 class="card-title">How It Works</h2>
+            <p class="card-subtitle">Simple 3-step process to maximize your cashback</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div style="font-size: 48px; margin-bottom: 15px;">📸</div>
+                <h3 style="margin-bottom: 10px; color: var(--dark);">1. Snap & Upload</h3>
+                <p style="color: #666;">
+                    Take a photo of your Walmart receipt or upload an existing image
+                </p>
             </div>
-            <div class="feature">
-                <span class="feature-icon">🔔</span>
-                <span><strong>Price Drop Alerts</strong> – Get notified when Walmart lowers prices on your purchases</span>
+            
+            <div class="stat-card">
+                <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
+                <h3 style="margin-bottom: 10px; color: var(--dark);">2. Smart Analysis</h3>
+                <p style="color: #666;">
+                    Our AI scans and matches items with current cashback offers
+                </p>
             </div>
-            <div class="feature">
-                <span class="feature-icon">👥</span>
-                <span><strong>Community Offers</strong> – Crowdsourced deals that grow smarter every day</span>
-            </div>
-            <div class="feature">
-                <span class="feature-icon">📱</span>
-                <span><strong>PWA Mobile App</strong> – Install on iOS/Android, works offline</span>
+            
+            <div class="stat-card">
+                <div style="font-size: 48px; margin-bottom: 15px;">💰</div>
+                <h3 style="margin-bottom: 10px; color: var(--dark);">3. Earn Rewards</h3>
+                <p style="color: #666;">
+                    Get paid instantly through multiple cashback platforms
+                </p>
             </div>
         </div>
     </div>
-</body>
-</html>
+
+    <!-- 🌟 Benefits Section -->
+    <div class="card fade-in-up">
+        <div class="card-header">
+            <h2 class="card-title">Why Choose Cashback Engine 3.0?</h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+            <div>
+                <h4 style="color: var(--dark); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    ⚡ Lightning Fast
+                </h4>
+                <p style="color: #666; line-height: 1.6;">
+                    Process receipts in seconds, not minutes. Our optimized AI engine 
+                    delivers results faster than any competitor.
+                </p>
+            </div>
+            
+            <div>
+                <h4 style="color: var(--dark); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    🎯 Maximum Accuracy
+                </h4>
+                <p style="color: #666; line-height: 1.6;">
+                    Advanced computer vision ensures 99.9% accuracy in text extraction 
+                    and price detection from any receipt condition.
+                </p>
+            </div>
+            
+            <div>
+                <h4 style="color: var(--dark); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    🔒 Bank-Level Security
+                </h4>
+                <p style="color: #666; line-height: 1.6;">
+                    Your data is encrypted end-to-end. We never store sensitive information 
+                    and comply with all privacy regulations.
+                </p>
+            </div>
+            
+            <div>
+                <h4 style="color: var(--dark); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    📈 Growing Rewards
+                </h4>
+                <p style="color: #666; line-height: 1.6;">
+                    Our database of cashback offers grows daily. More opportunities 
+                    to save money with every shopping trip.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎉 Call to Action -->
+    <div class="card fade-in-up" style="text-align: center; background: var(--primary); color: white;">
+        <h2 style="font-size: 36px; margin-bottom: 20px;">
+            Ready to Start Earning? 🚀
+        </h2>
+        <p style="font-size: 18px; margin-bottom: 30px; opacity: 0.9;">
+            Join thousands of smart shoppers already maximizing their Walmart cashback rewards
+        </p>
+        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_for('register') }}" class="btn" style="background: white; color: var(--dark); font-weight: bold;">
+                Create Free Account
+            </a>
+            <a href="{{ url_for('login') }}" class="btn" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
+                Sign In
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 🎨 Page-specific animations */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.stat-card:nth-child(odd) {
+    animation: slideInLeft 0.6s ease-out;
+}
+
+.stat-card:nth-child(even) {
+    animation: slideInRight 0.6s ease-out;
+}
+</style>
+{% endblock %}

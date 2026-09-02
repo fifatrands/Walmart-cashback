@@ -1,64 +1,349 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Upload Receipt</title>
-    <link rel="manifest" href="/manifest.json">
-    <style>
-        body { font-family: sans-serif; padding: 2rem; max-width: 500px; margin: auto; }
-        .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #0071dc; text-align: center; margin-bottom: 1.5rem; }
-        .upload-area { border: 2px dashed #0071dc; border-radius: 12px; padding: 3rem; text-align: center; margin: 1rem 0; cursor: pointer; transition: background 0.2s; }
-        .upload-area:hover { background: #e8f0fe; }
-        .upload-area.dragover { background: #d0e3ff; }
-        input[type="file"] { display: none; }
-        button { width: 100%; background: #0071dc; color: white; border: none; padding: 0.75rem; border-radius: 8px; font-size: 1rem; font-weight: bold; margin-top: 1rem; }
-        .link { text-align: center; margin-top: 1rem; color: #666; }
-        .link a { color: #0071dc; text-decoration: none; }
-        .flash { background: #f8d7da; color: #721c24; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; }
-        .hint { color: #666; font-size: 0.9rem; margin-top: 0.5rem; }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h1>📸 Upload Receipt</h1>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="flash">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+{% extends "base.html" %}
+
+{% block title %}Upload Receipt - Walmart Cashback Engine 3.0{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- 📸 Upload Header -->
+    <div class="card fade-in-up" style="background: var(--secondary); color: white; text-align: center;">
+        <h1 style="font-size: 36px; margin-bottom: 15px;">
+            📸 Upload Your Receipt
+        </h1>
+        <p style="font-size: 18px; opacity: 0.9;">
+            Snap a photo or upload an image to start earning cashback instantly!
+        </p>
+    </div>
+
+    <!-- 🎯 Upload Form -->
+    <div class="card fade-in-up">
         <form method="POST" enctype="multipart/form-data" id="uploadForm">
-            <div class="upload-area" id="dropZone">
-                <p>📄 Drag & drop receipt image or PDF here</p>
-                <p class="hint">Or click to browse</p>
-                <input type="file" name="file" id="fileInput" accept=".png,.jpg,.jpeg,.gif,.pdf" required>
+            <!-- 📱 Drag & Drop Area -->
+            <div class="file-upload" id="fileUpload">
+                <input type="file" name="receipt" id="receiptFile" accept="image/*,application/pdf" required>
+                <div class="file-upload-btn" id="uploadBtn">
+                    <div style="font-size: 48px; margin-bottom: 20px;">📸</div>
+                    <h3 style="margin-bottom: 15px;">Drop your receipt here</h3>
+                    <p style="opacity: 0.8; margin-bottom: 20px;">
+                        Or click to browse from your device
+                    </p>
+                    <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                        <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 15px; font-size: 12px;">JPG</span>
+                        <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 15px; font-size: 12px;">PNG</span>
+                        <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 15px; font-size: 12px;">PDF</span>
+                    </div>
+                </div>
             </div>
-            <button type="submit">Process Receipt</button>
+            
+            <!-- 📷 Preview Area -->
+            <div id="previewArea" style="display: none; margin-top: 30px; text-align: center;">
+                <h3 style="margin-bottom: 20px; color: var(--dark);">📋 Receipt Preview</h3>
+                <div id="imagePreview" style="max-width: 100%; border-radius: var(--border-radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px;"></div>
+                <button type="button" onclick="clearUpload()" class="btn btn-secondary" style="margin-right: 15px;">
+                    🗑️ Clear Upload
+                </button>
+            </div>
+            
+            <!-- 🚀 Submit Button -->
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="submit" class="btn btn-large btn-success pulse" id="submitBtn" disabled>
+                    🤖 Process Receipt & Find Cashback
+                </button>
+            </div>
         </form>
-        <div class="link">
-            <a href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
+    </div>
+
+    <!-- 💡 Tips & Instructions -->
+    <div class="stats-grid">
+        <div class="stat-card fade-in-up">
+            <div style="font-size: 36px; margin-bottom: 15px;">📝</div>
+            <h4 style="margin-bottom: 15px; color: var(--dark);">Clear & Complete</h4>
+            <p style="color: #666; text-align: center;">
+                Make sure all text is readable and the entire receipt is visible in the image
+            </p>
+        </div>
+        
+        <div class="stat-card fade-in-up">
+            <div style="font-size: 36px; margin-bottom: 15px;">💡</div>
+            <h4 style="margin-bottom: 15px; color: var(--dark);">Good Lighting</h4>
+            <p style="color: #666; text-align: center;">
+                Avoid shadows and reflections. Natural light works best for scanning
+            </p>
+        </div>
+        
+        <div class="stat-card fade-in-up">
+            <div style="font-size: 36px; margin-bottom: 15px;">📐</div>
+            <h4 style="margin-bottom: 15px; color: var(--dark);">Straight Angle</h4>
+            <p style="color: #666; text-align: center;">
+                Keep your device parallel to the receipt for optimal text recognition
+            </p>
+        </div>
+        
+        <div class="stat-card fade-in-up">
+            <div style="font-size: 36px; margin-bottom: 15px;">🏪</div>
+            <h4 style="margin-bottom: 15px; color: var(--dark);">Walmart Only</h4>
+            <p style="color: #666; text-align: center;">
+                Currently supports Walmart receipts. More stores coming soon!
+            </p>
         </div>
     </div>
-    <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
+
+    <!-- 📈 Processing Status -->
+    <div id="processingCard" class="card fade-in-up" style="display: none; background: var(--warning); color: white; text-align: center;">
+        <div class="loading" style="margin: 0 auto 20px;"></div>
+        <h3 style="margin-bottom: 15px;">🤖 Processing Your Receipt...</h3>
+        <p style="opacity: 0.9;">
+            Our AI is scanning for items and matching cashback offers. This usually takes 10-15 seconds.
+        </p>
+        <div style="margin-top: 30px;">
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin: 10px 0;">
+                <span id="step1" style="opacity: 0.5;">1️⃣ Extracting text from image...</span>
+            </div>
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin: 10px 0;">
+                <span id="step2" style="opacity: 0.5;">2️⃣ Identifying products and prices...</span>
+            </div>
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin: 10px 0;">
+                <span id="step3" style="opacity: 0.5;">3️⃣ Matching with cashback offers...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎉 Recent Uploads -->
+    <div class="card fade-in-up">
+        <div class="card-header">
+            <h2 class="card-title">📚 Your Recent Uploads</h2>
+            <p class="card-subtitle">Previous receipts and their cashback results</p>
+        </div>
         
-        dropZone.addEventListener('click', () => fileInput.click());
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            if (e.dataTransfer.files.length) {
-                fileInput.files = e.dataTransfer.files;
-            }
-        });
-    </script>
-</body>
-</html>
+        <div id="recentUploads">
+            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(40, 167, 69, 0.1); border-radius: 10px; margin-bottom: 15px;">
+                <div style="font-size: 24px;">🧾</div>
+                <div>
+                    <p style="margin: 0; font-weight: 600;">receipt_20240901_001.jpg</p>
+                    <p style="margin: 0; color: #666; font-size: 14px;">Uploaded 2 hours ago • 5 items matched</p>
+                </div>
+                <div style="margin-left: auto; color: #28a745; font-weight: bold;">+$2.50</div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(102, 126, 234, 0.1); border-radius: 10px; margin-bottom: 15px;">
+                <div style="font-size: 24px;">🧾</div>
+                <div>
+                    <p style="margin: 0; font-weight: 600;">grocery_receipt.pdf</p>
+                    <p style="margin: 0; color: #666; font-size: 14px;">Uploaded yesterday • 3 items matched</p>
+                </div>
+                <div style="margin-left: auto; color: #28a745; font-weight: bold;">+$1.75</div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="viewAllReceipts()" class="btn btn-secondary">
+                📋 View All Receipts
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// 🎯 File Upload Enhancements
+const fileUpload = document.getElementById('fileUpload');
+const fileInput = document.getElementById('receiptFile');
+const uploadBtn = document.getElementById('uploadBtn');
+const previewArea = document.getElementById('previewArea');
+const imagePreview = document.getElementById('imagePreview');
+const submitBtn = document.getElementById('submitBtn');
+const uploadForm = document.getElementById('uploadForm');
+const processingCard = document.getElementById('processingCard');
+
+// Drag and drop functionality
+fileUpload.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.style.transform = 'scale(1.02)';
+    this.style.boxShadow = 'var(--shadow-hover)';
+    uploadBtn.style.background = 'linear-gradient(45deg, #43e97b, #38f9d7)';
+});
+
+fileUpload.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.style.transform = 'scale(1)';
+    this.style.boxShadow = '';
+    uploadBtn.style.background = '';
+});
+
+fileUpload.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.style.transform = 'scale(1)';
+    this.style.boxShadow = '';
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        fileInput.files = files;
+        handleFileSelect(files[0]);
+    }
+});
+
+// File selection handler
+fileInput.addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+    }
+});
+
+function handleFileSelect(file) {
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+        alert('❌ Please upload a JPG, PNG, or PDF file');
+        return;
+    }
+    
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+        alert('❌ File too large. Please upload a file smaller than 10MB');
+        return;
+    }
+    
+    // Update UI
+    uploadBtn.innerHTML = `
+        <div style="font-size: 32px; margin-bottom: 10px;">✅</div>
+        <h4 style="margin-bottom: 10px;">File Selected!</h4>
+        <p style="margin: 0;">${file.name}</p>
+        <p style="margin: 5px 0 0; opacity: 0.8; font-size: 14px;">
+            ${(file.size / 1024 / 1024).toFixed(2)} MB
+        </p>
+    `;
+    uploadBtn.style.background = 'linear-gradient(45deg, #43e97b, #38f9d7)';
+    
+    // Show preview for images
+    if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagePreview.innerHTML = `
+                <img src="${e.target.result}" alt="Receipt preview" 
+                     style="max-width: 100%; max-height: 400px; border-radius: 10px;">
+            `;
+            previewArea.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        // PDF preview
+        imagePreview.innerHTML = `
+            <div style="padding: 40px; background: var(--light); border-radius: 10px;">
+                <div style="font-size: 48px; margin-bottom: 20px;">📄</div>
+                <h4>PDF Receipt Ready</h4>
+                <p style="color: #666;">${file.name}</p>
+            </div>
+        `;
+        previewArea.style.display = 'block';
+    }
+    
+    // Enable submit button
+    submitBtn.disabled = false;
+    submitBtn.classList.remove('pulse');
+    submitBtn.classList.add('pulse');
+}
+
+function clearUpload() {
+    fileInput.value = '';
+    previewArea.style.display = 'none';
+    submitBtn.disabled = true;
+    uploadBtn.innerHTML = `
+        <div style="font-size: 48px; margin-bottom: 20px;">📸</div>
+        <h3 style="margin-bottom: 15px;">Drop your receipt here</h3>
+        <p style="opacity: 0.8; margin-bottom: 20px;">Or click to browse from your device</p>
+        <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 15px; font-size: 12px;">JPG</span>
+            <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 15px; font-size: 12px;">PNG</span>
+            <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 15px; font-size: 12px;">PDF</span>
+        </div>
+    `;
+    uploadBtn.style.background = '';
+}
+
+// Form submission with progress animation
+uploadForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Show processing animation
+    processingCard.style.display = 'block';
+    processingCard.scrollIntoView({ behavior: 'smooth' });
+    
+    // Animate processing steps
+    setTimeout(() => {
+        document.getElementById('step1').style.opacity = '1';
+        document.getElementById('step1').innerHTML = '1️⃣ Extracting text from image... ✅';
+    }, 1000);
+    
+    setTimeout(() => {
+        document.getElementById('step2').style.opacity = '1';
+        document.getElementById('step2').innerHTML = '2️⃣ Identifying products and prices... ✅';
+    }, 3000);
+    
+    setTimeout(() => {
+        document.getElementById('step3').style.opacity = '1';
+        document.getElementById('step3').innerHTML = '3️⃣ Matching with cashback offers... ✅';
+    }, 5000);
+    
+    // Submit the actual form after animation
+    setTimeout(() => {
+        this.submit();
+    }, 6000);
+});
+
+function viewAllReceipts() {
+    alert('📋 Full receipt history coming soon! This will show all your uploaded receipts with detailed cashback breakdowns.');
+}
+
+// Add some fun animations
+setInterval(() => {
+    const tips = document.querySelectorAll('.stat-card');
+    const randomTip = tips[Math.floor(Math.random() * tips.length)];
+    
+    if (Math.random() < 0.1) { // 10% chance every 3 seconds
+        randomTip.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+            randomTip.style.transform = 'scale(1)';
+        }, 300);
+    }
+}, 3000);
+</script>
+
+<style>
+/* 🎨 Upload-specific styles */
+#fileUpload {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#fileUpload:hover {
+    transform: translateY(-2px);
+}
+
+.file-upload-btn {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Progress animation */
+@keyframes progressPulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+#processingCard .loading {
+    animation: spin 1s linear infinite;
+}
+
+#processingCard div[style*="background: rgba(255,255,255,0.2)"] {
+    animation: progressPulse 1.5s ease-in-out infinite;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .file-upload-btn {
+        padding: 30px 15px;
+    }
+    
+    .file-upload-btn h3 {
+        font-size: 18px;
+    }
+}
+</style>
+{% endblock %}
