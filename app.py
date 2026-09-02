@@ -26,8 +26,6 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True)
     ibotta_token = db.Column(db.String(200))  # optional
     fetch_token = db.Column(db.String(200))
-    push_enabled = db.Column(db.Boolean, default=True)
-    email_enabled = db.Column(db.Boolean, default=True)
 
 class Receipt(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,7 +50,11 @@ with app.app_context():
     db.create_all()
     
     # Create admin user if it doesn't exist
-    admin_user = User.query.filter_by(username='admin').first()
+    try:
+        admin_user = User.query.filter_by(username='admin').first()
+    except:
+        admin_user = None
+        
     if not admin_user:
         admin_password_hash = generate_password_hash('admin123')  # Change this password!
         admin_user = User(
