@@ -3,7 +3,7 @@ services:
     name: walmart-cashback
     env: python
     plan: free
-    buildCommand: "pip install -r requirements.txt && apt-get update && apt-get install -y tesseract-ocr poppler-utils"
+    buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
     envVars:
       - key: SECRET_KEY
