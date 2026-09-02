@@ -6,8 +6,6 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from PIL import Image
-import pytesseract
-import pdf2image
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -62,15 +60,14 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png','jpg','jpeg','gif','pdf'}
 
 def extract_text_from_image(path):
-    img = Image.open(path)
-    return pytesseract.image_to_string(img)
+    # OCR functionality temporarily disabled - returning placeholder
+    # TODO: Implement OCR service or use cloud-based OCR API
+    return "Receipt text extraction temporarily disabled. Please enter items manually."
 
 def extract_text_from_pdf(path):
-    images = pdf2image.convert_from_path(path)
-    text = ''
-    for img in images:
-        text += pytesseract.image_to_string(img) + '\n'
-    return text
+    # PDF OCR functionality temporarily disabled - returning placeholder
+    # TODO: Implement PDF parsing or use cloud-based OCR API
+    return "PDF text extraction temporarily disabled. Please upload image files instead."
 
 def parse_receipt(text):
     lines = text.split('\n')
